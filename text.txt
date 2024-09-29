@@ -1,0 +1,559 @@
+###pract-1
+def encryption(pt,key):
+    list1='abcdefghijklmnopqrstuvwxyz'
+    en=''
+    for i in pt.lower():
+        k=(list1.index(i)+key)%26
+        en += list1[k]
+    print("Encrypted Text :",en)
+pt=input("Enter plain text: ")
+key=int(input("Enter a key: "))
+encryption(pt,key)
+
+def decryption(pt,key):
+    list1='abcdefghijklmnopqrstuvwxyz'
+    de=''
+    for i in pt.lower():
+        k=(list1.index(i)-key)%26
+        de += list1[k]
+    print("Decrypted Text :",de)
+pt=input("Enter Cipher text: ")
+key=int(input("Enter a key: "))
+decryption(pt,key)
+
+###pract-2
+1]vernam cipher
+def vernam_encrypt(pt,key):
+    alpha = "abcdefghijklmnopqrstuvwxyz"
+    pt.replace(" ","")
+    en = ""
+    for i in range(len(key)):
+        c = alpha.index(pt[i]) ^ alpha.index(key[i])
+        en += alpha[c%26]
+    return en
+
+def vernam_decrypt(ct,key):
+    alpha = "abcdefghijklmnopqrstuvwxyz"
+    ct.replace(" ","")
+    de = ""
+    for i in range(len(key)):
+        c = alpha.index(ct[i]) ^ alpha.index(key[i])
+        if(c>20):
+            de += alpha[abs(c-26)%26]
+        if(c<=20):
+            de += alpha[c%26]
+    return de
+
+pt = input("Enter Plain text:")
+key = input("Enter key :")
+
+if(len(pt)== len(key)):
+    ct = vernam_encrypt(pt,key)
+    print("Encrypted text is :",ct)
+    de = vernam_decrypt(ct,key)
+    print("Decrypted text is :",de)
+else:
+    print("Key should be of same size of plain text")
+    
+   
+2]playfair cipher
+from re import findall
+array= ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z']
+def datalist_normal(key):
+    key=key.replace(" ","")
+    key=key.lower()
+    list1=list()
+    for i in range(len(key)):
+        char=key[i]
+        if char not in list1:
+            if char=='i':
+                list1.append('j')
+            else:
+                list1.append(char)
+    for i in range(len(array)):
+        char=array[i]
+        if char not in list1:
+            if char=='i':
+                list1.append('j')
+            else:
+                list1.append(char)
+    return list1
+def matrix(list1):
+    m=[]
+    index=0
+    for i in range(5):
+        a=[]
+        for j in range(5):
+            a.append(list1[index])
+            index=index+1
+        m.append(a)
+    print("matrix:")
+    for i in range(5):
+        for j in range(5):
+            print(m[i][j],end=" ")
+        print()
+    return m
+def plain(text):
+    text=text.replace(" ","")
+    p=list()
+    for i in range(len(text)):
+        char=text[i]
+        if char=='i':
+            p.append('j')
+        else:
+            p.append(char)
+    for i in range(0,len(p),2):
+        if i<len(p)-1:
+            if p[i]==p[i+1]:
+                p.insert(i+1,"x")
+        if len(p)%2!=0:
+            p.append("x")
+    return p
+def enc(p, m):
+    encr=""
+    for i in range(0,len(p),2):
+        print(p[i],":",p[i+1])
+        for j in range(5):
+            for k in range(5):
+                if p[i] == m[j][k]:
+                    a=j
+                    b=k
+        for j in range(5):
+            for k in range(5):
+                if p[i+1] == m[j][k]:
+                    c=j
+                    d=k
+        if a==c and b!=d:
+            encr+=(m[a][(b+1)%5])
+            encr+=(m[c][(d+1)%5])
+        elif b==d and a!=c:
+            encr+=(m[(a+1)%5][b])
+            encr+=(m[(c+1)%5][d])
+        else:
+            encr+=(m[a][d])
+            encr+=(m[c][b])
+    return encr
+def dec(p, m):
+    decr=""
+    for i in range(0,len(p),2):
+        print(p[i],":",p[i+1])
+        for j in range(5):
+            for k in range(5):
+                if p[i] == m[j][k]:
+                    a=j
+                    b=k
+        for j in range(5):
+            for k in range(5):
+                if p[i+1] == m[j][k]:
+                    c=j
+                    d=k
+        if a==c and b!=d:
+            decr+=(m[a][(b-1)%5])
+            decr+=(m[c][(d-1)%5])
+        elif b==d and a!=c :
+            decr+=(m[(a-1)%5][b])
+            decr+=(m[(c-1)%5][d])
+        else:
+            decr+=(m[a][d])
+            decr+=(m[c][b])
+    return decr
+key=input("Enter key:")
+text=input("Enter text:")
+#creating datalist
+list1=datalist_normal(key)
+print("Datalist:",list1)
+#creating matrix
+matrix1=matrix(list1)
+#creating plaintext list and adding dummy letters
+plaintext=plain(text)
+print("Plaintext:",plaintext)
+#Creating pairs
+#pair(plaintext)
+#encrption
+encrypt=enc(plaintext, matrix1)
+print("Encryped:",encrypt)
+#decryption
+decrypt=dec(encrypt, matrix1)
+print("Decrypted:",decrypt)
+
+
+3]vigenere cipher
+import math
+l = 'abcdefghijklmnopqrstuvwxyz'
+pt = input("Enter Plain text: ")
+pt = pt.replace(" ", "")  # Removing spaces from the plain text
+
+klength = int(input("Enter the length of key: "))
+k = []
+
+# Loop to take key values and append them to the list `k`
+for i in range(klength):
+    v = int(input("Enter key " + str(i+1) + ": "))
+    k.append(v)  #Append each key value to the list `k`
+
+en = ""
+de = ""
+n = 0
+
+# Encryption process
+for i in range(len(pt)):
+    if n < len(k):
+        n = n+1
+    if n >= len(k):
+        n = 0
+    ind = (l.index(pt[i])+ k[n-1])%26
+    en = en+l[ind]
+n = 0
+print("Encryption is :",en)
+
+# Decryption process
+for i in range(len(pt)):
+    if n < len(k):
+        n = n + 1
+    if n >= len(k):
+        n = 0
+    ind = (l.index(en[i]) - k[n-1]+26)%26
+    de = de + l[ind]
+
+print("Decrypted text is:", de)
+
+###pract-3
+
+1]Railfence
+
+pt=input("Enter the plain text:").replace(" ","")
+u=""
+l=""
+en=""
+de=""
+j=len(pt)//2
+for i in range(0,len(pt)):
+    if i%2==0:
+        u+=pt[i]
+    else:
+        l+=pt[i]
+en=u+l
+print("Encrypted Text:",en)
+if len(pt)%2==0:
+    for i in range(0,j):
+        de+=u[i]+l[i]
+else:
+    for i in range(0,j):
+        de+=u[i]+l[i]
+    de+=u[-1]
+print("Decrypted Text:",de)
+
+2]simple columnar techniques
+def encrypt_columnar(plaintext, key):
+    # Sort the key and get the order of the columns
+    order = sorted(range(len(key)), key=lambda k: key[k])
+
+    # Create the matrix
+    matrix = [''] * len(key)
+    for i, char in enumerate(plaintext):
+        matrix[i % len(key)] += char
+
+    # Read columns based on key order
+    ciphertext = ''.join(matrix[i] for i in order)
+    return ciphertext
+
+def decrypt_columnar(ciphertext, key):
+    # Sort the key and get the order of the columns
+    order = sorted(range(len(key)), key=lambda k: key[k])
+    
+    # Calculate the number of rows and columns
+    num_rows = len(ciphertext) // len(key)
+    num_extra = len(ciphertext) % len(key)
+    
+    # Create the matrix and fill in columns
+    matrix = [''] * len(key)
+    index = 0
+    for i in order:
+        col_len = num_rows + 1 if i < num_extra else num_rows
+        matrix[i] = ciphertext[index:index + col_len]
+        index += col_len
+    
+    # Reconstruct the plaintext
+    plaintext = ''.join(matrix[i][row] for row in range(num_rows + 1) for i in range(len(key)) if row < len(matrix[i]))
+    return plaintext
+
+# User input
+plaintext = input("Enter the plaintext: ").upper()
+key = input("Enter the key (numeric, e.g., '4312'): ")
+
+# Encrypt and decrypt
+ciphertext = encrypt_columnar(plaintext, key)
+print(f"Ciphertext: {ciphertext}")
+
+decrypted = decrypt_columnar(ciphertext, key)
+print(f"Decrypted: {decrypted}")
+
+
+###pract-4
+
+1]DES algo
+
+from des import DesKey 
+
+pt = bytes(input("Enter plain text :"),'utf-8')
+key = bytes(input("Enter key:"),'utf-8')
+
+k = DesKey(key)
+k.is_single()
+
+en = k.encrypt(pt)
+print("Encryption is :",en)
+de = k.decrypt(en)
+print("Decryption is :",de)
+
+2] AES algo
+
+from aes_cipher import *
+
+data=input("Enter a string : ")
+
+data_encrypter=DataEncrypter()
+
+data_encrypter.Encrypt(data,"test_pwd")
+enc_data=data_encrypter.GetEncryptedData()
+print("Encrypted Data :",enc_data)
+
+data_decrypter=DataDecrypter()
+
+data_decrypter.Decrypt(enc_data, "test_pwd")
+dec_data = data_decrypter.GetDecryptedData()
+print("Decrypted Data :",dec_data)
+
+3]RC4
+
+from Crypto.Cipher import ARC4
+
+pt = bytes(input("Enter plain Text: "), 'utf-8')
+key = bytes(input("Enter Key: "), 'utf-8')
+
+# Encrypt the plaintext
+arc4 = ARC4.new(key)  # Use ARC4.new() to create the cipher object
+cipher = arc4.encrypt(pt)
+
+print("Encrypted text: ", cipher)
+
+# Decryption
+arc4 = ARC4.new(key)  # Recreate the ARC4 object for decryption
+decrypted_text = arc4.decrypt(cipher)
+
+print("Decrypted text: ", decrypted_text.decode('utf-8'))  # Decode back to string
+
+###pract-5
+
+from math import gcd
+
+def RSA(p: int, q: int, message: int):
+    n = p * q
+    t = (p - 1) * (q - 1)
+    for i in range(2, t):
+        if gcd(i, t) == 1:
+            e = i
+    j = 0
+    while True:
+        if (j * e) % t == 1:
+            d = j
+            break
+        j += 1
+    ct = (message ** e) % n
+    print(f"Encrypted message is {ct}")
+    mes = (ct ** d) % n
+    print(f"Decrypted message is {mes}")                         
+
+p=int(input("Enter value of p : "))
+q=int(input("Enter value of q : "))
+msg=int(input("Enter value of msg : "))
+RSA(p,q,msg)
+
+###pract-6
+
+import sympy
+
+def find_primitive_root(p):
+    # Ensure the input is a prime number
+    if not sympy.isprime(p):
+        raise ValueError("The number must be a prime.")
+    
+    # Find the primitive root
+    g = sympy.primitive_root(p)
+    return g
+
+# Example usage
+prime_number = 17  # Replace with the prime number you want to test
+primitive_root = find_primitive_root(prime_number)
+print(f"The primitive root of {prime_number} is {primitive_root}")
+
+# Define private keys xa and xb for two parties (you can replace these with any other values)
+xa = 5  # Private key of the first party
+xb = 7  # Private key of the second party
+p = prime_number
+g = primitive_root
+
+# Compute public values ya and yb
+ya = pow(g, xa, p)
+print("Value of ya (first party's public key):", ya)
+
+yb = pow(g, xb, p)
+print("Value of yb (second party's public key):", yb)
+
+# Compute shared secret keys s1 and s2
+s1 = pow(yb, xa, p)  # First party's shared key
+print("Value of s1 (first party's shared key):", s1)
+
+s2 = pow(ya, xb, p)  # Second party's shared key
+print("Value of s2 (second party's shared key):", s2)
+
+# Both s1 and s2 should be the same
+if s1 == s2:
+    print("Shared keys match:", s1)
+else:
+    print("Shared keys are different.")
+
+
+###pract-7
+
+1]md5
+
+import hashlib
+def page_check(filename):
+    hash1=hashlib.md5()
+    with open(filename,"rb") as open_file:
+        content=open_file.read()
+        hash1.update(content)
+    print(hash1.hexdigest())
+
+def check_pass(pw):
+    hash1=hashlib.md5(pw.encode("utf-8"))
+    print("Your md5 password is:",hash1.hexdigest())
+
+while True:
+    choice=int(input("""Enter your choice:
+1.hash from file
+2.hash from input
+3.Exit
+"""))
+    if choice == 1:
+        filename=input("Enter the filename:")
+        page_check(filename)
+    elif choice == 2:
+        pw=input("Enter the password:")
+        check_pass(pw)
+    elif choice == 3:
+        print("Program finished")
+        break
+    else:
+        print("Invalid choice")
+
+        
+2]HMAC SHAI
+
+import hashlib
+def sha(pt):
+    hash1 = hashlib.sha1(pt.encode())
+    print("Signatuer of you msg is :",hash1.hexdigest())
+pt = input("Enter plain text")
+sha(pt)
+
+
+#pract-8
+
+1]Elgamal Digital sign
+ int(input(f"Enter private key (1 < x < {p-1}): "))
+g = primitive_root(p)  # Get the primitive root of p
+print(f"Using the primitive root g={g}")
+
+y = pow(g, x, p)  # Compute public key y = g^x mod p
+print(f"Public Key: (p={p}, g={g}, y={y})")
+print(f"Private key:x={x}")
+
+# Message to be signed
+msg = input("Enter the message: ")
+m = hash_message(msg) % (p - 1)
+
+# Signing
+k = int(input(f"Enter random the integer k (1 < k < {p-1}, gcd(k, {p-1}) = 1): "))
+s1 = pow(g, k, p)  # s1 = g^k mod p
+k_inv = mod_inverse(k, p - 1)  # Find k inverse modulo (p-1)
+s2 = (k_inv * (m - x * s1)) % (p - 1)  # s2 = k_inv * (m - x * s1) mod (p-1)
+print(f"Signature: (s1={s1}, s2={s2})")
+
+# Verification
+v1 = pow(g, m, p)  # v1 = g^m mod p
+v2 = (pow(y, s1, p) * pow(s1, s2, p)) % p  # v2 = y^s1 * s1^s2 mod p
+print(f"v1={v1} and v2={v2}")
+if v1 == v2:
+    print("Signature is valid")
+else:
+    print("Signature is invalid")
+
+
+2]Schnorr -Digital signature
+
+from sympy import primitive_root, mod_inverse
+from hashlib import sha256
+
+def hash_message(msg):
+    h = sha256(msg.encode()).hexdigest()
+    return int(h, 16)
+def schnorr_sign(p, g, x, msg):
+    m_hash = hash_message(msg)
+    k = int(input(f"Enter random nonce k (1 < k < {p-1}): "))
+    r = pow(g, k, p)
+    e = hash_message(f"{msg}{r}") % p
+    s = (k - e * x) % (p - 1)
+    return (r, s)
+
+def schnorr_verify(p, g, y, msg, signature):
+    r, s = signature
+    e = hash_message(f"{msg}{r}") % p
+    lhs = pow(g, s, p)
+    rhs = (r * pow(y, e, p)) % p
+    if lhs == rhs:
+        print("Signature is valid")
+    else:
+        print("Signature is invalid")
+
+p = int(input("Enter the prime number p: "))
+x = int(input(f"Enter a private key x (1 < x < {p-1}): "))
+g = primitive_root(p)
+print(f"Using the primitive root g = {g}")
+
+y = pow(g, x, p)
+print(f"Public Key: (p={p}, g={g}, y={y})")
+print(f"Private Key: x={x}")
+
+msg = input("Enter the message to sign: ")
+signature = schnorr_sign(p, g, x, msg)
+print(f"Signature: r = {signature[0]}, s = {signature[1]}")
+
+schnorr_verify(p, g, y, msg, signature)
+
+
+###pract-10
+
+import socket
+import ssl
+
+hostname = "www.python.org"
+port = 443
+context = ssl.create_default_context()
+
+with socket.create_connection((hostname,port))as sock:
+    with context.wrap_socket(sock,server_hostname=hostname)as ssock:
+        print(f"SSL prtocol version:{ssock.version()}")
+
+        #req
+        req = f"GET / HTTP/1.1\r\nHost:{hostname}\r\n\r\n"
+        ssock.send(req.encode())
+
+        #res
+        res = ssock.recv(4096).decode()
+
+        print("response from the server")
+        print(res)
+        ssock.close()
+        
